@@ -13,6 +13,15 @@ class SpaceshipScene < SKScene
     end
   end
 
+  def touchesBegan(touches, withEvent: event)
+    spaceship = self.childNodeWithName("hull")
+
+    unless spaceship.nil?
+      location = touches.anyObject.locationInNode(self)
+      spaceship.runAction(SKAction.moveTo(location, duration: 1.0))
+    end
+  end
+
   def didSimulatePhysics
     self.enumerateChildNodesWithName "rock", usingBlock: lambda { |node, stop| node.removeFromParent if node.position.y < 0 }
   end
@@ -29,17 +38,15 @@ class SpaceshipScene < SKScene
 
   def newSpaceship
     hull = SKSpriteNode.alloc.initWithColor(UIColor.grayColor, size: CGSizeMake(64,32))
-    hover = SKAction.sequence([SKAction.waitForDuration(1.0), SKAction.moveByX(100, y: 50.0, duration:1.0),
-                               SKAction.waitForDuration(1.0), SKAction.moveByX(-100.0, y: -50, duration: 1.0)])
-    hull.runAction(SKAction.repeatActionForever(hover))
+    hull.name = "hull"
+    hull.physicsBody = SKPhysicsBody.bodyWithRectangleOfSize(hull.size)
+    hull.physicsBody.dynamic = false
     light1 = newLight
-    light1.position = CGPointMake(-28.0, 6.0)
     light2 = newLight
+    light1.position = CGPointMake(-28.0, 6.0)
     light2.position = CGPointMake(28.0, 6.0)
     hull.addChild light1
     hull.addChild light2
-    hull.physicsBody = SKPhysicsBody.bodyWithRectangleOfSize(hull.size)
-    hull.physicsBody.dynamic = false
     hull
   end
 
